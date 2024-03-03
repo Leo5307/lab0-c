@@ -33,10 +33,12 @@ void q_free(struct list_head *head)
     if (head) {
         list_for_each_entry_safe (entry, safe, head, list) {
             list_del(&(entry->list));
+            free(entry->value);
             free(entry);
         }
 
         free(head);
+
     }
 }
 
@@ -48,11 +50,7 @@ bool q_insert_head(struct list_head *head, char *s)
         return false;
     }
     element_t *node = malloc(sizeof(element_t));
-    if (!node) {
-        free(node);
-        return false;
-    }
-    if (!s) {
+    if (!node || !s) {
         free(node);
         return false;
     }
@@ -72,11 +70,7 @@ bool q_insert_tail(struct list_head *head, char *s)
         return false;
     }
     element_t *node = malloc(sizeof(element_t));
-    if (!node) {
-        free(node);
-        return false;
-    }
-    if (!s) {
+    if (!node || !s) {
         free(node);
         return false;
     }
