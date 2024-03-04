@@ -165,30 +165,7 @@ bool q_delete_mid(struct list_head *head)
     free(del_node->value);
     free(del_node);
     return true;
-    // printf("gogo");
-    // struct list_head *slow, *fast;
-    // slow = fast = head;
-    // //Both 'fast' and 'fast->next' being null indicate that we have reached
-    // the
-    // //end of the queue (therefore, 'slow' has reached the midpoint)
-    // element_t *cursor;
-    // list_for_each_entry (cursor, head, list){
-    //     printf("%s\n",cursor->value);
-    // }
-    // printf("----------------------------");
-    // while (fast && fast->next){
-    //     slow = slow->next;
-    //     fast = fast->next->next;
-    // }
-    // element_t* del_node;
-    // del_node = container_of(slow,element_t,list);
-    // printf("%s",del_node->value);
-    // list_del(slow);
-    // free(del_node->value);
-    // free(del_node);
-
-    // // https://leetcode.com/problems/delete-the-middle-node-of-a-linked-list/
-    // return true;
+    // https://leetcode.com/problems/delete-the-middle-node-of-a-linked-list/
 }
 
 /* Delete all nodes that have duplicate string */
@@ -258,7 +235,19 @@ void q_swap(struct list_head *head)
 }
 
 /* Reverse elements in queue */
-void q_reverse(struct list_head *head) {}
+void q_reverse(struct list_head *head)
+{
+    if (head && !(list_is_singular(head))) {
+        struct list_head *curr = head;
+        struct list_head *tmp;
+        do {
+            tmp = curr->next;
+            curr->next = curr->prev;
+            curr->prev = tmp;
+            curr = tmp;
+        } while ((curr != head));  // terminate
+    }
+}
 
 /* Reverse the nodes of the list k at a time */
 void q_reverseK(struct list_head *head, int k)
@@ -266,8 +255,36 @@ void q_reverseK(struct list_head *head, int k)
     // https://leetcode.com/problems/reverse-nodes-in-k-group/
 }
 
+
 /* Sort elements of queue in ascending/descending order */
-void q_sort(struct list_head *head, bool descend) {}
+void q_sort(struct list_head *head, bool descend)
+{
+    struct list_head list_less, list_greater;
+    element_t *item = NULL, *is = NULL;
+
+    if (list_empty(head) || list_is_singular(head))
+        return;
+
+    INIT_LIST_HEAD(&list_less);
+    INIT_LIST_HEAD(&list_greater);
+
+    element_t *pivot = list_first_entry(head, element_t, list);
+    list_del(&pivot->list);
+
+    list_for_each_entry_safe (item, is, head, list) {
+        if (strcmp(item->value, pivot->value) < 0)
+            list_move_tail(&item->list, &list_less);
+        else
+            list_move_tail(&item->list, &list_greater);
+    }
+
+    q_sort(&list_less, false);
+    q_sort(&list_greater, false);
+
+    list_add(&pivot->list, head);
+    list_splice(&list_less, head);
+    list_splice_tail(&list_greater, head);
+}
 
 /* Remove every node which has a node with a strictly less value anywhere to
  * the right side of it */
