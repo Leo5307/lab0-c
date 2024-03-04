@@ -151,7 +151,6 @@ bool q_delete_mid(struct list_head *head)
     } else {
         mid = size / 2;
     }
-    printf("mid = %d", mid);
     struct list_head *cursor;
     int len = 0;
     list_for_each (cursor, head) {
@@ -194,8 +193,35 @@ bool q_delete_mid(struct list_head *head)
 
 /* Delete all nodes that have duplicate string */
 bool q_delete_dup(struct list_head *head)
-{
-    // https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/
+{  // https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/
+
+    if (!head) {
+        return false;
+    }
+    element_t *entry;
+    element_t *safe;
+    char *key = NULL;
+    list_for_each_entry_safe (entry, safe, head, list) {
+        if (key && strcmp(entry->value, key) ==
+                       0) {  // condition of key equal to element's value
+            // printf("%s",key);
+            list_del(&(entry->list));
+            free(entry->value);
+            free(entry);
+            continue;
+        }
+
+        if (safe->value && strcmp(entry->value, safe->value) ==
+                               0) {  // condition of finding same element,store
+                                     // the value to key
+            list_del(&(entry->list));
+            key = strdup(entry->value);
+            free(entry->value);
+            free(entry);
+        }
+    }
+
+    free(key);
     return true;
 }
 
