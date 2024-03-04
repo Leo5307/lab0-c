@@ -38,7 +38,6 @@ void q_free(struct list_head *head)
         }
 
         free(head);
-
     }
 }
 
@@ -100,7 +99,7 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
         strncpy(sp, remove_node->value, bufsize - 1);
         sp[bufsize - 1] = '\0';
         list_del(&remove_node->list);
-        printf("%s", sp);
+        // printf("%s", sp);
     }
 
     return remove_node;
@@ -117,7 +116,7 @@ element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
         strncpy(sp, remove_node->value, bufsize - 1);
         sp[bufsize - 1] = '\0';
         list_del(&remove_node->list);
-        printf("%s", sp);
+        // printf("%s", sp);
     }
 
     return remove_node;
@@ -127,14 +126,70 @@ element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
 /* Return number of elements in queue */
 int q_size(struct list_head *head)
 {
-    return -1;
+    if (!head)
+        return 0;
+
+    int len = 0;
+    struct list_head *cursor;
+
+    list_for_each (cursor, head)
+        len++;
+    return len;
+    // return -1;
 }
 
 /* Delete the middle node in queue */
 bool q_delete_mid(struct list_head *head)
 {
-    // https://leetcode.com/problems/delete-the-middle-node-of-a-linked-list/
+    if (!head) {
+        return false;
+    }
+    int size = q_size(head);
+    int mid = 0;
+    if (size % 2 == 0) {
+        mid = size / 2 - 1;
+    } else {
+        mid = size / 2;
+    }
+    printf("mid = %d", mid);
+    struct list_head *cursor;
+    int len = 0;
+    list_for_each (cursor, head) {
+        if (len == mid) {
+            break;
+        } else {
+            len++;
+        }
+    }
+    element_t *del_node = container_of(cursor, element_t, list);
+    list_del(cursor);
+    free(del_node->value);
+    free(del_node);
     return true;
+    // printf("gogo");
+    // struct list_head *slow, *fast;
+    // slow = fast = head;
+    // //Both 'fast' and 'fast->next' being null indicate that we have reached
+    // the
+    // //end of the queue (therefore, 'slow' has reached the midpoint)
+    // element_t *cursor;
+    // list_for_each_entry (cursor, head, list){
+    //     printf("%s\n",cursor->value);
+    // }
+    // printf("----------------------------");
+    // while (fast && fast->next){
+    //     slow = slow->next;
+    //     fast = fast->next->next;
+    // }
+    // element_t* del_node;
+    // del_node = container_of(slow,element_t,list);
+    // printf("%s",del_node->value);
+    // list_del(slow);
+    // free(del_node->value);
+    // free(del_node);
+
+    // // https://leetcode.com/problems/delete-the-middle-node-of-a-linked-list/
+    // return true;
 }
 
 /* Delete all nodes that have duplicate string */
