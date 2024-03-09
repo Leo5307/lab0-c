@@ -237,7 +237,9 @@ void q_swap(struct list_head *head)
 /* Reverse elements in queue */
 void q_reverse(struct list_head *head)
 {
-    if (head && !(list_is_singular(head))) {
+    if (list_empty(head))
+        return;
+    if (!(list_is_singular(head))) {
         struct list_head *curr = head;
         struct list_head *tmp;
         do {
@@ -249,12 +251,35 @@ void q_reverse(struct list_head *head)
     }
 }
 
+
 /* Reverse the nodes of the list k at a time */
 void q_reverseK(struct list_head *head, int k)
 {
     // https://leetcode.com/problems/reverse-nodes-in-k-group/
-}
+    if (list_empty(head) || k <= 1 || list_is_singular(head)) {
+        return;
+    }
 
+    struct list_head *cursor;
+    struct list_head *safe;
+    struct list_head new_queue;
+    struct list_head *new_queue_head = &new_queue;
+    struct list_head **start_node = &head;
+    // struct list_head tmp_queue, *tmp_head = head, *safe, *node;
+    INIT_LIST_HEAD(new_queue_head);
+    int count = 1;
+    list_for_each_safe (cursor, safe, head) {
+        if (count == k) {
+            list_cut_position(new_queue_head, *start_node, cursor);
+            q_reverse(new_queue_head);
+            list_splice_init(new_queue_head, head);
+            start_node = &(safe->prev);
+            count = 0;
+        }
+        count++;
+        // printf("done");
+    }
+}
 
 /* Sort elements of queue in ascending/descending order */
 void q_sort(struct list_head *head, bool descend)
@@ -268,7 +293,7 @@ void q_sort(struct list_head *head, bool descend)
     INIT_LIST_HEAD(&list_less);
     INIT_LIST_HEAD(&list_greater);
 
-    element_t *pivot = list_first_entry(head, element_t, list);
+    element_t *pivot = list_last_entry(head, element_t, list);
     list_del(&pivot->list);
 
     list_for_each_entry_safe (item, is, head, list) {
@@ -284,6 +309,10 @@ void q_sort(struct list_head *head, bool descend)
     list_add(&pivot->list, head);
     list_splice(&list_less, head);
     list_splice_tail(&list_greater, head);
+
+    if (descend) {
+        q_reverse(head);
+    }
 }
 
 /* Remove every node which has a node with a strictly less value anywhere to
