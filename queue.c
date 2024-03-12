@@ -320,7 +320,50 @@ void q_sort(struct list_head *head, bool descend)
 int q_ascend(struct list_head *head)
 {
     // https://leetcode.com/problems/remove-nodes-from-linked-list/
-    return 0;
+    if (!head || list_is_singular(head)) {
+        return q_size(head);
+    }
+    struct list_head *cursor;
+    struct list_head *safe;
+    struct list_head *cursor_moving;
+
+    cursor = head->next;
+    int size = q_size(head);
+    // printf("%d",size);
+    for (int i = 1; i <= size; i++) {
+        safe = cursor->next;
+        cursor_moving = cursor->next;
+        // printf("%d",strcmp(container_of(cursor,element_t,list)->value,container_of(cursor_moving,element_t,list)->value));
+        // list_del(cursor);
+        // q_release_element(container_of(cursor,element_t,list));
+        // printf("%d",i);
+        for (int j = 1; j <= size - i; j++) {
+            // printf("%d,%d",i,j);
+            element_t *curr_element = container_of(cursor, element_t, list);
+            element_t *curr_moving_element =
+                container_of(cursor_moving, element_t, list);
+            // printf("%s",curr_element->value);
+            // printf("%s",curr_moving_element->value);
+            char *cur_value = curr_element->value;
+            char *cur_mov_value = curr_moving_element->value;
+
+            if (strcmp(cur_value, cur_mov_value) > 0) {
+                // printf("\nstart debug");
+                // printf("%s",curr_element->value);
+                list_del(cursor);
+                q_release_element(curr_element);
+                break;
+            } else {
+                printf("\n move to next");
+                cursor_moving = cursor_moving->next;
+            }
+        }
+        cursor = safe;
+    }
+    return (q_size(head));
+
+
+    // return 0;
 }
 
 /* Remove every node which has a node with a strictly greater value anywhere to
@@ -328,7 +371,48 @@ int q_ascend(struct list_head *head)
 int q_descend(struct list_head *head)
 {
     // https://leetcode.com/problems/remove-nodes-from-linked-list/
-    return 0;
+    if (!head || list_is_singular(head)) {
+        return q_size(head);
+    }
+    struct list_head *cursor;
+    struct list_head *safe;
+    struct list_head *cursor_moving;
+
+    cursor = head->next;
+    int size = q_size(head);
+    // printf("%d",size);
+    for (int i = 1; i <= size; i++) {
+        safe = cursor->next;
+        cursor_moving = cursor->next;
+        // printf("%d",strcmp(container_of(cursor,element_t,list)->value,container_of(cursor_moving,element_t,list)->value));
+        // list_del(cursor);
+        // q_release_element(container_of(cursor,element_t,list));
+        // printf("%d",i);
+        for (int j = 1; j <= size - i; j++) {
+            printf("%d,%d", i, j);
+            element_t *curr_element = container_of(cursor, element_t, list);
+            element_t *curr_moving_element =
+                container_of(cursor_moving, element_t, list);
+            // printf("%s",curr_element->value);
+            // printf("%s",curr_moving_element->value);
+            char *cur_value = curr_element->value;
+            char *cur_mov_value = curr_moving_element->value;
+
+            if (strcmp(cur_value, cur_mov_value) < 0) {
+                // printf("\nstart debug");
+                // printf("%s",curr_element->value);
+                list_del(cursor);
+                q_release_element(curr_element);
+                break;
+            } else {
+                // printf("\n move to next");
+                cursor_moving = cursor_moving->next;
+            }
+        }
+        cursor = safe;
+    }
+    return (q_size(head));
+    // return 0;
 }
 
 /* Merge all the queues into one sorted queue, which is in ascending/descending
