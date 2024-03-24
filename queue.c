@@ -344,44 +344,48 @@ void q_reverseK(struct list_head *head, int k)
     }
 }
 
+void merge(struct list_head *l1, struct list_head *l2, struct list_head *head)
+{
+    while (!list_empty(l1) && !list_empty(l2)) {
+        element_t *l1_node = container_of(l1->next, element_t, list);
+        element_t *l2_node = container_of(l2->next, element_t, list);
+        if (strcmp(l1_node->value, l2_node->value) <= 0) {
+            list_move_tail(l1->next, head);
+        } else {
+            list_move_tail(l2->next, head);
+        }
+    }
+    if (!list_empty(l1)) {
+        list_splice_tail_init(l1, head);
+    }
+    if (!list_empty(l2)) {
+        list_splice_tail_init(l2, head);
+    }
+}
+void mergeSortList(struct list_head *head)
+{
+    if (!head || list_empty(head) || list_is_singular(head))
+        return;
+    struct list_head *slow = head, *fast = head;
+    do {
+        fast = fast->next->next;
+        slow = slow->next;
+    } while (fast != head && fast->next != head);
+
+    LIST_HEAD(l_head);
+    LIST_HEAD(r_head);
+    list_splice_tail_init(head, &r_head);
+    list_cut_position(&l_head, &r_head, slow);
+
+    mergeSortList(&l_head);
+    mergeSortList(&r_head);
+    merge(&l_head, &r_head, head);
+}
+
 /* Sort elements of queue in ascending/descending order */
 void q_sort(struct list_head *head, bool descend)
 {
-    struct list_head list_less, list_greater;
-    element_t *item = NULL, *is = NULL;
-    int count = 0;
-    srand(time(0));
-    if (list_empty(head) || list_is_singular(head))
-        return;
-    // int size = q_size(head);
-    INIT_LIST_HEAD(&list_less);
-    INIT_LIST_HEAD(&list_greater);
-
-    int random = rand() % q_size(head);
-    element_t *pivot = list_first_entry(head, element_t, list);
-    list_for_each_entry (item, head, list) {
-        if (count == random) {
-            pivot = item;
-            break;
-        }
-    }
-
-    list_del(&pivot->list);
-
-    list_for_each_entry_safe (item, is, head, list) {
-        if (strcmp(item->value, pivot->value) < 0)
-            list_move_tail(&item->list, &list_less);
-        else
-            list_move_tail(&item->list, &list_greater);
-    }
-
-    q_sort(&list_less, false);
-    q_sort(&list_greater, false);
-
-    list_add(&pivot->list, head);
-    list_splice(&list_less, head);
-    list_splice_tail(&list_greater, head);
-
+    mergeSortList(head);
     if (descend) {
         q_reverse(head);
     }
