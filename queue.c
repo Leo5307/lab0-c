@@ -1,8 +1,8 @@
+#include "queue.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "queue.h"
+#include <time.h>
 
 /* Notice: sometimes, Cppcheck would find the potential NULL pointer bugs,
  * but some of them cannot occur. You can suppress them by adding the
@@ -247,7 +247,7 @@ bool q_delete_dup(struct list_head *head)
             } else {
                 break;
             }
-            printf("check");
+            // printf("check");
         }
         if (count > 0) {
             del_cursor = cursor;
@@ -349,14 +349,23 @@ void q_sort(struct list_head *head, bool descend)
 {
     struct list_head list_less, list_greater;
     element_t *item = NULL, *is = NULL;
-
+    int count = 0;
+    srand(time(0));
     if (list_empty(head) || list_is_singular(head))
         return;
     // int size = q_size(head);
     INIT_LIST_HEAD(&list_less);
     INIT_LIST_HEAD(&list_greater);
 
-    element_t *pivot = list_last_entry(head, element_t, list);
+    int random = rand() % q_size(head);
+    element_t *pivot = list_first_entry(head, element_t, list);
+    list_for_each_entry (item, head, list) {
+        if (count == random) {
+            pivot = item;
+            break;
+        }
+    }
+
     list_del(&pivot->list);
 
     list_for_each_entry_safe (item, is, head, list) {
