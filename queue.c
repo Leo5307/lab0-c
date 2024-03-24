@@ -91,7 +91,7 @@ bool q_insert_tail(struct list_head *head, char *s)
 element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
 
 {
-    if (!head) {
+    if (!head || list_empty(head)) {
         return NULL;
     }
     element_t *remove_node = list_first_entry(head, element_t, list);
@@ -108,7 +108,7 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
 /* Remove an element from tail of queue */
 element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
 {
-    if (!head) {
+    if (!head || list_empty(head)) {
         return NULL;
     }
     element_t *remove_node = list_last_entry(head, element_t, list);
@@ -319,29 +319,35 @@ void q_reverse(struct list_head *head)
 void q_reverseK(struct list_head *head, int k)
 {
     // https://leetcode.com/problems/reverse-nodes-in-k-group/
-    if (list_empty(head) || k <= 1 || list_is_singular(head)) {
+    if (!head || list_empty(head) || k <= 1 || list_is_singular(head)) {
         return;
     }
 
     struct list_head *cursor;
     struct list_head *safe;
     struct list_head new_queue;
+    struct list_head tmp_queue;
     struct list_head *new_queue_head = &new_queue;
+    struct list_head *tmp_queue_head = &tmp_queue;
     struct list_head **start_node = &head;
     // struct list_head tmp_queue, *tmp_head = head, *safe, *node;
     INIT_LIST_HEAD(new_queue_head);
+    INIT_LIST_HEAD(tmp_queue_head);
     int count = 1;
     list_for_each_safe (cursor, safe, head) {
         if (count == k) {
-            list_cut_position(new_queue_head, *start_node, cursor);
-            q_reverse(new_queue_head);
-            list_splice_init(new_queue_head, head);
+            list_cut_position(tmp_queue_head, *start_node, cursor);
+            q_reverse(tmp_queue_head);
+            list_splice_tail_init(tmp_queue_head, new_queue_head);
             start_node = &(safe->prev);
             count = 0;
         }
         count++;
-        // printf("done");
     }
+    if (!list_empty(head)) {
+        list_splice_tail_init(head, new_queue_head);
+    }
+    list_cut_position(head, new_queue_head, new_queue_head->prev);
 }
 
 void merge(struct list_head *l1, struct list_head *l2, struct list_head *head)
