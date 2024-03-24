@@ -169,36 +169,99 @@ bool q_delete_mid(struct list_head *head)
 }
 
 /* Delete all nodes that have duplicate string */
+// bool q_delete_dup(struct list_head *head)
+// {  // https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/
+
+//     if (!head) {
+//         return false;
+//     }
+
+//     if (list_is_singular(head)){
+//         return true;
+//     }
+//         element_t *entry;
+//     element_t *safe;
+//     char *key = NULL;
+//     list_for_each_entry_safe (entry, safe, head, list) {
+//         if (key && strcmp(entry->value, key) ==
+//                        0) {  // condition of key equal to element's value
+//             // printf("%s",key);
+//             list_del(&(entry->list));
+//             free(entry->value);
+//             free(entry);
+//             continue;
+//         }
+
+//         if (safe->value && strcmp(entry->value, safe->value) ==
+//                                0) {  // condition of finding same
+//                                element,store
+//                                      // the value to key
+//             list_del(&(entry->list));
+//             key = strdup(entry->value);
+//             free(entry->value);
+//             free(entry);
+//         }
+//     }
+
+//     free(key);
+//     return true;
+// }
 bool q_delete_dup(struct list_head *head)
 {  // https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/
 
     if (!head) {
         return false;
     }
-    element_t *entry;
-    element_t *safe;
-    char *key = NULL;
-    list_for_each_entry_safe (entry, safe, head, list) {
-        if (key && strcmp(entry->value, key) ==
-                       0) {  // condition of key equal to element's value
-            // printf("%s",key);
-            list_del(&(entry->list));
-            free(entry->value);
-            free(entry);
-            continue;
-        }
 
-        if (safe->value && strcmp(entry->value, safe->value) ==
-                               0) {  // condition of finding same element,store
-                                     // the value to key
-            list_del(&(entry->list));
-            key = strdup(entry->value);
-            free(entry->value);
-            free(entry);
+    if (list_is_singular(head)) {
+        return true;
+    }
+    struct list_head *cursor;
+    struct list_head *del_cursor;
+    struct list_head *cursor_moving;
+    struct list_head *del_cursor_moving;
+    int count = 0;
+    cursor = head->next;
+
+    while (cursor != head) {
+        // safe = cursor->next;
+        cursor_moving = cursor->next;
+        element_t *curr_element = container_of(cursor, element_t, list);
+
+        while (cursor_moving != head) {
+            element_t *curr_moving_element =
+                container_of(cursor_moving, element_t, list);
+            // printf("round");
+            if (strcmp(curr_element->value, curr_moving_element->value) == 0) {
+                printf("%s\n", curr_moving_element->value);
+                del_cursor_moving = cursor_moving;
+                cursor_moving = cursor_moving->next;
+                cursor_moving->prev = del_cursor_moving->prev;
+                cursor_moving->prev->next =
+                    del_cursor_moving->next;  // important
+                element_t *del_node =
+                    container_of(del_cursor_moving, element_t, list);
+                free(del_node->value);
+                free(del_node);
+                count++;
+            } else {
+                break;
+            }
+            printf("check");
+        }
+        if (count > 0) {
+            del_cursor = cursor;
+            cursor = cursor->next;
+            cursor->prev = del_cursor->prev;
+            cursor->prev->next = del_cursor->next;  // important
+            element_t *del_node = container_of(del_cursor, element_t, list);
+            free(del_node->value);
+            free(del_node);
+            count = 0;
+        } else {
+            cursor = cursor->next;
         }
     }
-
-    free(key);
     return true;
 }
 
@@ -289,7 +352,7 @@ void q_sort(struct list_head *head, bool descend)
 
     if (list_empty(head) || list_is_singular(head))
         return;
-
+    // int size = q_size(head);
     INIT_LIST_HEAD(&list_less);
     INIT_LIST_HEAD(&list_greater);
 
